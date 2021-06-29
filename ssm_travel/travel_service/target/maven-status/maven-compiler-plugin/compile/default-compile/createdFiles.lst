@@ -1,0 +1,10 @@
+com\service\IUserService.class
+com\service\IProductService.class
+com\service\IRoleService.class
+com\service\IPermissionService.class
+com\service\impl\OrdersServiceImpl.class
+com\service\impl\ProductServiceImpl.class
+com\service\impl\RoleServiceImpl.class
+com\service\impl\UserServiceImpl.class
+com\service\impl\PermissionServiceImpl.class
+com\service\IOrdersService.class

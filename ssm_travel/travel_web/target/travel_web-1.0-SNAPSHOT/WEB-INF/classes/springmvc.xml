@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <aop:aspectj-autoproxy proxy-target-class="true"></aop:aspectj-autoproxy>
+
+    <!-- 开启注解扫描，只扫描Controller注解 -->
+    <context:component-scan base-package="com">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+
+
+    <!-- 配置视图解析器对象 -->
+    <bean id="internalResourceViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/pages/" />
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!-- 过滤静态资源 -->
+    <mvc:resources location="/css/" mapping="/css/**" />
+    <mvc:resources location="/img/" mapping="/img/**" />
+    <mvc:resources location="/js/" mapping="/js/**" />
+    <mvc:resources mapping="/plugins/**" location="/plugins/" />
+
+    <!-- 开启springMVC的注解支持 -->
+    <mvc:annotation-driven  conversion-service="conversion"/>
+
+    <!-- 配置自定义类型转化  提示：需要在注解支持里面添加开启-->
+    <bean id="conversion" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <!-- 将自定义类型转化类放入组件中 -->
+        <property name="converters">
+            <set>
+                <bean class="com.utils.StringToDateConverter"/>
+            </set>
+        </property>
+    </bean>
+
+</beans>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:secutrity="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/security
+    http://www.springframework.org/schema/security/spring-security.xsd">
+
+
+    <!-- 250注解使用,开启支持可以省略 ROLE_  前缀  例如：@RolesAllowed("ADMIN") ，需要导入依赖
+            secured 注解使用不能省略前缀  例如：@Secured("ROLE_ADMIN")，由于是security提供，所以不用导入依赖
+            @PreAuthorize("authentication.principal.username =='hcc2'")  可以使用pel表达式
+     -->
+    <security:global-method-security pre-post-annotations="enabled"
+                                     jsr250-annotations="enabled"
+                                     secured-annotations="enabled"></security:global-method-security>
+
+
+    <!-- 配置不拦截的资源 -->
+    <security:http pattern="/login.jsp" security="none"/>
+    <security:http pattern="/failer.jsp" security="none"/>
+    <security:http pattern="/css/**" security="none"/>
+    <security:http pattern="/img/**" security="none"/>
+    <security:http pattern="/plugins/**" security="none"/>
+
+    <!--
+    	配置具体的规则
+    	auto-config="true"	不用自己编写登录的页面，框架提供默认登录页面
+    	use-expressions="false"	是否使用SPEL表达式 ,修改后
+    -->
+    <security:http auto-config="true" use-expressions="true">
+        <!-- 配置具体的拦截的规则 pattern="请求路径的规则" access="访问系统的人，必须有ROLE_USER的角色（其中，ROLE是前缀， ‘_’之后刷视能访问的权限"
+            当access的值是以“ROLE_”开头的则将会交由RoleVoter进行处理。
+        -->
+
+        <!-- 不使用spel表达式
+        <security:intercept-url pattern="/**" access="ROLE_USER，ROLE_ADMIN"/>-->
+        <!-- 使用spel表达式以后 -->
+        <security:intercept-url pattern="/**" access="hasAnyRole('ROLE_USER','ROLE_ADMIN')"/>
+
+
+        <!-- 定义跳转的具体的页面
+                login-page：连接请求后进入的网页
+                login-processing-url=  ：网页发过来的请求
+                default-target-url=： 默认的网页
+                authentication-failure-url：认证错误的网页
+                authentication-success-forward-url="" ：登录成功了的请求
+         -->
+        <security:form-login
+                login-page="/login.jsp"
+                login-processing-url="/login"
+                username-parameter="username"
+                password-parameter="password"
+                authentication-failure-url="/failer.jsp"
+                default-target-url="/pages/main.jsp"
+                authentication-success-forward-url="/pages/main.jsp"
+        />
+
+        <!-- 关闭跨域请求 -->
+        <security:csrf disabled="true"/>
+
+        <!-- 退出 -->
+        <security:logout invalidate-session="true" logout-url="/logout.do" logout-success-url="/login.jsp" />
+
+    </security:http>
+
+    <!-- 切换成数据库中的用户名和密码 -->
+    <security:authentication-manager>
+        <!-- 去service中找名为 userService 的bean,来执行相应的方法-->
+        <security:authentication-provider user-service-ref="userService">
+            <!-- 配置加密的方式-->
+            <security:password-encoder ref="passwordEncoder"/>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+    <!-- 配置加密类 -->
+    <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+
+    <!-- 提供了入门的方式，在内存中存入用户名和密码
+    <security:authentication-manager>
+    	<security:authentication-provider>
+    		<security:user-service>
+    			<security:user name="admin" password="{noop}admin" authorities="ROLE_USER"/>
+    		</security:user-service>
+    	</security:authentication-provider>
+    </security:authentication-manager>
+    -->
+
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
